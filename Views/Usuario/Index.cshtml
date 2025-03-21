@@ -1,0 +1,113 @@
+﻿@model IEnumerable<IronMongeryTools.Models.Usuarios>
+
+@{
+    ViewData["Title"] = "Usuarios";
+}
+
+<h2>Todos los usuarios</h2>
+@if (User.IsInRole("Administrador"))
+{
+    <p>
+        <a asp-action="Create" class="btn btn-primary">Crear</a>
+    </p>
+}
+else
+{
+    <p>
+        <a asp-action="Create" class="btn btn-primary" style="display: none;">Crear</a>
+    </p>
+}
+<div class="content-wrapper">
+    <table class="table-custom" style="min-width: 1297px;">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.UsuarioID)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Nombre)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.FechaNacimiento)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Correo)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (User.IsInRole("Administrador"))
+            {
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td style="text-align: center;">
+                            @Html.DisplayFor(modelItem => item.UsuarioID)
+                        </td>
+                        <td style="text-align: center;">
+                            @Html.DisplayFor(modelItem => item.Nombre)
+                        </td>
+                        <td style="text-align: center;">
+                            @Html.DisplayFor(modelItem => item.FechaNacimiento)
+                        </td>
+                        <td style="text-align: center;">
+                            @Html.DisplayFor(modelItem => item.Correo)
+                        </td>
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@item.UsuarioID" class="btn btn-custom-edit">Editar</a> |
+                            <a asp-action="Details" asp-route-id="@item.UsuarioID" class="btn btn-custom-details">Detalles</a> |
+                            <a asp-action="Delete" asp-route-id="@item.UsuarioID" class="btn btn-custom-delete">Eliminar</a>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                var usuarioActual = Model.FirstOrDefault(u => u.Correo == User.Identity.Name);
+                if (usuarioActual != null)
+                {
+                    <tr>
+                        <td style="text-align: center;">
+                            @Html.DisplayFor(modelItem => usuarioActual.UsuarioID)
+                        </td>
+                        <td style="text-align: center;">
+                            @Html.DisplayFor(modelItem => usuarioActual.Nombre)
+                        </td>
+                        <td style="text-align: center;">
+                            @Html.DisplayFor(modelItem => usuarioActual.FechaNacimiento)
+                        </td>
+                        <td style="text-align: center;">
+                            @Html.DisplayFor(modelItem => usuarioActual.Correo)
+                        </td>
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@usuarioActual.UsuarioID" class="btn btn-custom-edit">Editar</a> |
+                            <a asp-action="Details" asp-route-id="@usuarioActual.UsuarioID"
+                                class="btn btn-custom-details">Detalles</a> |
+                            <a asp-action="Delete" asp-route-id="@usuarioActual.UsuarioID"
+                                class="btn btn-custom-delete">Eliminar</a>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+        @if (TempData["Mensaje"] != null)
+        {
+            <div class="alert alert-success">
+                @TempData["Mensaje"]
+            </div>
+        }
+    </table>
+</div>
+
+@if (User.IsInRole("Administrador"))
+            {
+<footer class="footer">
+    <p>Total de registros: @ViewData["TotalUsuarios"]</p>
+</footer>
+}
+else {
+<footer class="footer">
+    <p>Total de registros: 1</p>
+</footer>
+}

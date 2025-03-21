@@ -1,0 +1,36 @@
+@model IronMongeryTools.Models.Usuarios
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h2>Detalle de usuario</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="custom-form-group">
+        <label asp-for="UsuarioID" class="control-label"></label>
+        <input asp-for="UsuarioID" class="form-control" size="10" readonly />
+        <span asp-validation-for="UsuarioID" class="text-danger"></span>
+    </div>
+    <div class="custom-form-group">
+        <label asp-for="Nombre" class="control-label"></label>
+        <input asp-for="Nombre" class="form-control" size="60" readonly />
+        <span asp-validation-for="Nombre" class="text-danger"></span>
+    </div>
+    <div class="custom-form-group">
+        <label asp-for="FechaNacimiento" class="control-label"></label>
+        <input asp-for="FechaNacimiento" class="form-control" size="10" readonly />
+        <span asp-validation-for="FechaNacimiento" class="text-danger"></span>
+    </div>
+    <div class="custom-form-group">
+        <label asp-for="Correo" class="control-label"></label>
+        <input asp-for="Correo" class="form-control" readonly />
+        <span asp-validation-for="Correo" class="text-danger"></span>
+    </div>
+    <div>
+        <a asp-action="Index" class="btn btn-primary custom-regresar-btn mt-3">Regresar a lista</a>
+    </div>
+}

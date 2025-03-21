@@ -1,0 +1,96 @@
+@model IronMongeryTools.Models.Productos
+
+@{
+    ViewData["Title"] = "Edit";
+    var categoriasPorProveedorJson = ViewBag.CategoriasPorProveedorJson;
+}
+
+<h2>Editar producto</h2>
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit" id="edit-form" autocomplete="off">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="custom-form-group">
+                <label asp-for="ProductoID" class="control-label"></label>
+                <input asp-for="ProductoID" class="form-control" maxlength="11" readonly />
+                <span asp-validation-for="ProductoID" class="text-danger"></span>
+            </div>
+
+            <div class="custom-form-group">
+                <label for="ProveedorID">Proveedor:</label>
+                <input type="text" class="form-control" value="@ViewBag.ProveedorNombre" readonly />
+                <input name="ProveedorID" value="@Model.ProveedorID" />
+            </div>
+
+            <div class="custom-form-group">
+                <label for="CategoriaID">Categoría:</label>
+                <input type="text" class="form-control" value="@ViewBag.CategoriaNombre" readonly />
+                <input name="CategoriaID" value="@Model.CategoriaID" />
+            </div>
+
+            <div class="custom-form-group">
+                <label asp-for="Nombre" class="control-label"></label>
+                <input asp-for="Nombre" class="form-control" type="text" maxlength="60" />
+                <span asp-validation-for="Nombre" class="text-danger"></span>
+            </div>
+
+            <div class="custom-form-group">
+                <label asp-for="Precio" class="control-label"></label>
+                <input asp-for="Precio" class="form-control" maxlength="10" />
+                <span asp-validation-for="Precio" class="text-danger"></span>
+            </div>
+
+            <div class="custom-form-group">
+                <label asp-for="Stock" class="control-label"></label>
+                <input asp-for="Stock" class="form-control" maxlength="10" />
+                <span asp-validation-for="Stock" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary custom-edit-btn">Guardar los cambios</button>
+        </form>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                // Obtener los datos de categorías por proveedor desde el ViewBag
+                var categoriasPorProveedor = @Html.Raw(categoriasPorProveedorJson);
+
+                var proveedorSelect = document.getElementById("ProveedorID");
+                var categoriaSelect = document.getElementById("CategoriaID");
+
+                // Evento para actualizar categorías cuando se cambia el proveedor
+                proveedorSelect.addEventListener("change", function () {
+                    var proveedorID = this.value;
+                    categoriaSelect.innerHTML = '<option value="">Seleccione una categoría</option>'; // Limpiar opciones
+
+                    if (proveedorID && categoriasPorProveedor[proveedorID]) {
+                        categoriasPorProveedor[proveedorID].forEach(function (categoria) {
+                            var option = document.createElement("option");
+                            option.value = categoria.CategoriaID;
+                            option.textContent = categoria.Nombre;
+                            categoriaSelect.appendChild(option);
+                        });
+                    }
+                });
+            });
+        </script>
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger">
+                @TempData["Error"]
+            </div>
+        }
+
+        <div>
+            <a asp-action="Index" class="btn btn-primary custom-regresar-btn mt-3">Regresar a la lista</a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

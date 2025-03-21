@@ -1,0 +1,101 @@
+html, body {
+  height: 1000000000%;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.content-wrapper {
+  flex: 1; 
+}
+
+.footer {
+  background-color: #f8f9fa;
+  text-align: center;
+  padding: 10px;
+  width: 100%;
+  position: relative;
+  bottom: 0;
+}
+/* Estilo para el encabezado */
+.header {
+  background-color: #1b6ec2; 
+  color: #fff; 
+  padding: 20px;
+  text-align: center;
+}
+
+/* Estilo para los botones personalizados */
+.btn-custom {
+  background-color: #258cfb;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  text-transform: uppercase;
+}
+
+.btn-custom:hover {
+  background-color: #1a75d3;
+}
+
+/* Estilo para los cuadros de texto en formularios */
+.form-control-custom {
+  border: 2px solid #258cfb;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+/* Estilo para la barra de navegación */
+.navbar-custom {
+  background-color: #1b6ec2;
+  border-radius: 0;
+}
+
+.navbar-custom a {
+  color: #fff;
+}
+
+.navbar-custom a:hover {
+  color: #ffcc00; 
+}
+
+
+
+/* Imagen de fondo para la página */
+body {
+  background-image: url('/images/background.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+/* Estilo para los títulos */
+h1, h2, h3 {
+  color: #1b6ec2;
+}
+
+/* Estilo de los cuadros de información */
+.info-box {
+  background-color: rgba(0, 0, 0, 0.6); 
+  color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+/* Estilo para las tarjetas de productos o servicios */
+.card-custom {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  margin: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.card-custom:hover {
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2); 
+}
+
+
+

@@ -1,0 +1,82 @@
+﻿@model IEnumerable<IronMongeryTools.Models.Productos>
+
+@{
+    ViewData["Title"] = "Productos";
+     var proveedorList = ViewBag.ProveedorList as List<SelectListItem>;
+}
+
+<h2>Todos los productos</h2>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Crear</a>
+</p>
+<div class="content-wrapper">
+    <table class="table-custom" style="min-width: 1297dpx;">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.ProductoID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Nombre)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CategoriaID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CategoriaNombre)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Precio)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Stock)
+            </th>
+            <th>Proveedor
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            var proveedor = proveedorList?.FirstOrDefault(p => p.Value == item.ProveedorID);
+            var proveedorNombre = proveedor != null ? proveedor.Text : "No asignado";
+            <tr>
+                <td style="text-align: center;">
+                    @Html.DisplayFor(modelItem => item.ProductoID)
+                </td>
+                <td style="text-align: center;">
+                    @Html.DisplayFor(modelItem => item.Nombre)
+                </td>
+                <td style="text-align: center;">
+                    @Html.DisplayFor(modelItem => item.CategoriaID)
+                </td>
+                 <td style="text-align: center;">
+                    @Html.DisplayFor(modelItem => item.CategoriaNombre)
+                </td>
+                <td style="text-align: center;">
+                        @item.Precio.ToString("C", new System.Globalization.CultureInfo("es-CR"))
+                </td>
+                <td style="text-align: center;">
+                    @Html.DisplayFor(modelItem => item.Stock)
+                </td>
+                <td style="text-align: center; padding-top: 10px;">
+                    @proveedorNombre
+                </td>
+              
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.ProductoID" class="btn btn-custom-edit">Editar</a> |
+                    <a asp-action="Details" asp-route-id="@item.ProductoID" class="btn btn-custom-details">Detalles</a> |
+                    <a asp-action="Delete" asp-route-id="@item.ProductoID" class="btn btn-custom-delete">Eliminar</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+ 
+</table>
+</div>
+<footer class="footer">
+    <p>Total de registros: @ViewData["TotalProductos"]</p>
+</footer>
+

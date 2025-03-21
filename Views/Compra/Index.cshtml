@@ -1,0 +1,248 @@
+@model IEnumerable<IronMongeryTools.Models.Productos>
+
+@{
+    ViewData["Title"] = "Compra";
+}
+
+<h2>Productos Disponibles</h2>
+
+<table class="table-custom" style="min-width: 1297px;">
+    <thead>
+        <tr>
+            <th>Producto ID</th>
+            <th>Nombre</th>
+            <th>Precio</th>
+            <th>Stock</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null && Model.Any())
+        {
+            @foreach (var producto in Model)
+            {
+                <tr>
+                    <td style="text-align:center">@producto.ProductoID</td>
+                    <td style="text-align:center">@producto.Nombre</td>
+                    <td style="text-align:center">@producto.Precio.ToString("C", new System.Globalization.CultureInfo("es-CR"))
+                    </td>
+                    <td style="text-align:center">@producto.Stock</td>
+                    <td style="text-align:center">
+                        <button class="btn btn-primary btn-agregar" data-producto-id="@producto.ProductoID">+</button>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="5" style="text-align:center;">No hay productos disponibles.</td>
+            </tr>
+        }
+    </tbody>
+</table>
+<form id="form-compra" method="post">
+    @Html.AntiForgeryToken()
+    <h2>Canasta de Compra</h2>
+    <table class="table-custom" id="canasta">
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Precio unitario</th>
+                <th>Subtotal</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+        <tfoot>
+            <tr>
+                <th colspan="4">Total</th>
+                <th id="total">¢0.00</th>
+            </tr>
+        </tfoot>
+    </table>
+
+    <button id="btn-compra" class="btn btn-success">Compra</button>
+
+    @section Scripts {
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                let canasta = [];
+                let productos = @Html.Raw(Json.Serialize(Model));
+
+                // Agregar producto a la canasta
+                document.querySelectorAll('.btn-agregar').forEach(button => {
+                    button.addEventListener('click', () => {
+                        const productoId = button.getAttribute('data-producto-id');
+                        const productoSeleccionado = productos.find(p => p.productoID == productoId);
+
+                        if (!productoSeleccionado || productoSeleccionado.stock <= 0) {
+                            alert("Error: Producto no encontrado o stock insuficiente.");
+                            return;
+                        }
+
+                        let item = canasta.find(i => i.productoID == productoId);
+                        if (item) {
+                            if (item.cantidad < productoSeleccionado.stock) {
+                                item.cantidad++;
+                                productoSeleccionado.stock--;
+                            } else {
+                                alert("Stock insuficiente.");
+                            }
+                        } else {
+                            canasta.push({
+                                productoID: productoSeleccionado.productoID,
+                                nombre: productoSeleccionado.nombre,
+                                precio: productoSeleccionado.precio,
+                                cantidad: 1
+                            });
+                            productoSeleccionado.stock--;
+                        }
+
+                        actualizarCanasta();
+                        actualizarStockTabla(productoId, productoSeleccionado.stock);
+                    });
+                });
+
+                // Quitar producto de la canasta
+                function quitarProducto(index) {
+                    let producto = canasta[index];
+                    let productoOriginal = productos.find(p => p.productoID == producto.productoID);
+
+                    if (producto.cantidad > 1) {
+                        producto.cantidad--;
+                    } else {
+                        canasta.splice(index, 1);
+                    }
+                    productoOriginal.stock++;
+
+                    actualizarCanasta();
+                    actualizarStockTabla(producto.productoID, productoOriginal.stock);
+                }
+
+                // Actualizar tabla de la canasta
+                function actualizarCanasta() {
+                    const tbody = document.querySelector('#canasta tbody');
+                    tbody.innerHTML = '';
+                    let total = 0;
+
+                    canasta.forEach((item, index) => {
+                        const subtotal = item.precio * item.cantidad;
+                        total += subtotal;
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                    <td>${item.nombre}</td>
+                    <td>${item.cantidad}</td>
+                    <td>¢${item.precio.toFixed(2)}</td>
+                    <td>¢${subtotal.toFixed(2)}</td>
+                    <td><button class="btn-quitar" data-index="${index}">-</button></td>`;
+                        tbody.appendChild(row);
+                    });
+
+                    document.getElementById('total').textContent = `¢${total.toFixed(2)}`;
+
+                    document.querySelectorAll('.btn-quitar').forEach(button => {
+                        button.addEventListener('click', () => {
+                            quitarProducto(button.getAttribute('data-index'));
+                        });
+                    });
+                }
+
+                // Actualizar el stock en la tabla de productos
+                function actualizarStockTabla(productoId, nuevoStock) {
+                    const fila = document.querySelector(`button[data-producto-id="${productoId}"]`).closest('tr');
+                    fila.querySelector('td:nth-child(4)').textContent = nuevoStock;
+                }
+
+                // Enviar la compra al backend
+                document.getElementById('btn-compra').addEventListener('click', async () => {
+                    if (canasta.length === 0) {
+                        alert("La canasta está vacía.");
+                        return;
+                    }
+
+                    try {
+                        const response = await fetch('/Compra/Compra', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+
+                            },
+                            body: JSON.stringify(canasta)
+                        });
+
+                        if (response.ok) {
+                            alert("Compra realizada con éxito.");
+                            canasta = [];
+                            actualizarCanasta();
+                            location.reload(); // Recargar la página para actualizar el stock
+                        } else {
+                            alert("Error al realizar la compra.");
+                            location.reload(); // Recargar la página
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                    }
+                });
+            });
+        </script>
+    }
+</form>
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+    TempData.Remove("SuccessMessage"); // Limpia el TempData después de mostrarlo
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+    TempData.Remove("ErrorMessage");
+}
+<style>
+    .table-custom {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+
+    .table-custom th,
+    .table-custom td {
+        padding: 8px;
+        text-align: center;
+        border: 1px solid #ddd;
+    }
+
+    .table-custom th {
+        background-color: #1b6ec2;
+        
+    }
+
+    .table-custom tbody tr:hover {
+        background-color: #73cbe9;
+        
+        border: 1px solid #020202;
+        
+    }
+
+    .btn-quitar {
+        padding: 5px 10px;
+        font-size: 14px;
+        border-radius: 4px;
+        background-color: #2740b1;
+       
+        color: white;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-quitar:hover {
+        background-color: #c82333;
+       
+    }
+</style>

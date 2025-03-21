@@ -1,0 +1,42 @@
+@model IronMongeryTools.Models.MovimientosInventario
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<h2>Eliminar movimientos de inventario</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <div class="custom-form-group">
+        <label asp-for="MovimientosInventarioID" class="control-label"></label>
+        <input asp-for="MovimientosInventarioID" class="form-control" size="10" readonly />
+        <span asp-validation-for="MovimientosInventarioID" class="text-danger"></span>
+    </div>
+    <div class="custom-form-group">
+        <label asp-for="ProductoID" class="control-label"></label>
+        <input asp-for="ProductoID" class="form-control" size="60" readonly />
+        <span asp-validation-for="ProductoID" class="text-danger"></span>
+    </div>
+    <div class="custom-form-group">
+        <label asp-for="TipoMovimiento" class="control-label"></label>
+        <input asp-for="TipoMovimiento" class="form-control" maxlength="10" readonly />
+        <span asp-validation-for="TipoMovimiento" class="text-danger"></span>
+    </div>
+    <div class="custom-form-group">
+        <label asp-for="Cantidad" class="control-label"></label>
+        <input asp-for="Cantidad" class="form-control" maxlength="10" readonly />
+        <span asp-validation-for="Cantidad" class="text-danger"></span>
+    </div>
+    <div class="custom-form-group">
+        <label asp-for="Fecha" class="control-label"></label>
+        <input asp-for="Fecha" class="form-control" maxlength="10" readonly />
+        <span asp-validation-for="Fecha" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary custom-delete-btn">Eliminar registro</button>
+
+    <div>
+        <a asp-action="Index" class="btn btn-primary custom-regresar-btn mt-3">Regresar a la lista</a>
+    </div>
+}

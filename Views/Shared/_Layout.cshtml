@@ -1,0 +1,364 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - IronMongeryTools</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css"  />
+
+    <style>
+        body {
+            background-color: #3d3939;
+            color: #e9ecee;
+            background-image: url('/images/FondoGris.JPG');
+            background-size: 100%;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            */
+        }
+
+        table tr td:nth-child(1),
+        table th:nth-child(1) {
+            padding-left: 30px;
+        }
+
+        table tr td:nth-child(3),
+        table th:nth-child(3) {
+            padding-left: 30px;
+        }
+
+        table tr td:nth-child(4),
+        table th:nth-child(4) {
+            padding-left: 10px;
+        }
+
+        table tr td:nth-child(5),
+        table th:nth-child(5) {
+            padding-left: 10px;
+        }
+
+        table tr td:nth-child(9),
+        table th:nth-child(9) {
+            padding-left: 20px;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4 {
+            color: #0a6bcc;
+        }
+
+        /* Botón Editar */
+        .btn-custom-edit {
+            background-color: #1c95e6;
+            color: white;
+        }
+
+        .btn-custom-edit:hover {
+            background-color: #6cc6f0cc;
+        }
+
+        /* Botón Detalles */
+        .btn-custom-details {
+            background-color: #08d4a1;
+            color: white;
+        }
+
+        .btn-custom-details:hover {
+            background-color: #6cc6f0cc;
+        }
+
+        /* Botón Eliminar */
+        .btn-custom-delete {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .btn-custom-delete:hover {
+            background-color: #da190b;
+        }
+
+        .custom-regresar-btn {
+            background-color: #0e7bd4;
+            color: white;
+            border: 2px solid #077c91;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .custom-regresar-btn:hover {
+            background-color: #062d68;
+            transform: scale(1.05);
+        }
+
+        .custom-save-btn {
+            background-color: #0d54d8;
+            color: white;
+            border: 2px solid #ffffff;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .custom-save-btn:hover {
+            background-color: #0c479e;
+            transform: scale(1.05);
+        }
+
+        .custom-save-btn:active {
+            background-color: #1f1ce2;
+            transform: scale(1);
+        }
+
+        .custom-edit-btn {
+            background-color: #0e7bd4;
+            color: white;
+            border: 2px solid #077c91;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .custom-edit-btn:hover {
+            background-color: #0c479e;
+            transform: scale(1.05);
+        }
+
+        .custom-edit-btn:active {
+            background-color: #1f1ce2;
+            transform: scale(1);
+        }
+
+        .custom-delete-btn {
+            background-color: #eb3406;
+            color: white;
+            border: 2px solid #0d81cf;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .custom-delete-btn:hover {
+            background-color: #e7360a;
+            transform: scale(1.05);
+        }
+
+        .custom-delete-btn:active {
+            background-color: #e0d316;
+            transform: scale(1);
+        }
+
+        .navbar {
+            background-color: #d1d5da;
+        }
+
+        .table-custom {
+            background-color: #73cbe9;
+            border: 1px solid #020202;
+        }
+
+        .table-custom th {
+            background-color: #1b6ec2;
+            color: rgb(221, 228, 230);
+            padding: 15px;
+            font-size: 16px;
+            text-align: center;
+            font-weight: bold;
+            height: 50px;
+        }
+
+        .table-custom td {
+            color: #333;
+        }
+
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .table {
+            border-spacing: 10px;
+        }
+
+        th,
+        td {
+            padding: 0.1px;
+            text-align: left;
+        }
+
+
+        .footer {
+            width: 100%;
+            background-color: #1d70c4;
+            color: #e9eeed;
+            padding: 10px;
+            text-align: center;
+            margin-top: 1px;
+            border-top: 1px solid #ddd;
+            box-sizing: border-box;
+        }
+
+        .custom-footer-footer {
+            width: 100%;
+            background-color: #1d70c4;
+            color: #e9eeed;
+            padding: 10px;
+            text-align: center;
+            margin-top: 1px;
+            border-top: 1px solid #ddd;
+            box-sizing: border-box;
+        }
+
+        .custom-footer {
+            background-color: #212529;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+
+        .custom-form-group {
+            margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
+            background-color: #f9f9f9;
+            padding: 1rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: 1px solid #ddd;
+            width: 350px;
+
+        }
+
+        .custom-form-group label {
+            font-weight: bold;
+            color: #3156d1;
+        }
+
+        .custom-form-group input {
+            padding: 0.20rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1rem;
+            width: 300px;
+        }
+
+        .custom-form-group small {
+            color: #6c757d;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+        
+        .no-bullets {
+    list-style: none;
+    padding-left: 0;
+}
+    </style>
+</head>
+<body>
+<header>
+    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <div class="container-fluid">
+            <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">IronMongeryTools</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" 
+                    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                <ul class="navbar-nav flex-grow-1">
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                    </li>
+                    @if (User.IsInRole("Administrador"))
+                    {
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Administrador" asp-action="Index">Administrador</a>
+                    </li>
+                    }
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Usuario" asp-action="Index">Usuarios</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Compra" asp-action="Index">Compra</a>
+                    </li>
+                    @if (User.IsInRole("Administrador"))
+                    {
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Proveedor" asp-action="Index">Proveedores</a>
+                    </li>
+                    }
+                    @if (User.IsInRole("Administrador"))
+                    {
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Producto" asp-action="Index">Productos</a>
+                    </li>
+                    }
+                    @if (User.IsInRole("Administrador"))
+                    {
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Venta" asp-action="Index">Ventas</a>
+                    </li>
+                    }
+                    @if (User.IsInRole("Administrador"))
+                    {
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="DetalleVenta" asp-action="Index">Detalles de ventas</a>
+                    </li>
+                    }
+                    @if (User.IsInRole("Administrador"))
+                    {
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="MovimientosInventario" asp-action="Index">Movimientos de inventario</a>
+                    </li>
+                    }
+                    
+                </ul>
+                <div class="d-flex align-items-center">
+                    @* Mostrar el rol del usuario si está almacenado en la sesión *@
+                    @{
+                        var rol = Context.Session.GetString("UserRole");
+                    }
+                    @if (!string.IsNullOrEmpty(rol))
+                    {
+                        <span class="badge bg-primary me-4">
+                            @rol
+                        </span>
+                    }
+                    <form method="post" action="/Acceso/Logout" class="mb-0">
+                        <button type="submit" class="btn btn-outline-danger">Cerrar Sesión</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="custom-footer">
+        <div class="container">
+            &copy; 2025 - IronMongeryTools - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

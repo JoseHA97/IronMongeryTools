@@ -1,0 +1,43 @@
+@model IronMongeryTools.Models.Productos
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<h2>Eliminar producto</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <div class="custom-form-group">
+        <label asp-for="ProductoID" class="control-label"></label>
+        <input asp-for="ProductoID" class="form-control" size="10" readonly />
+        <span asp-validation-for="ProductoID" class="text-danger"></span>
+    </div>
+    <div class="custom-form-group">
+        <label asp-for="Nombre" class="control-label"></label>
+        <input asp-for="Nombre" class="form-control" size="60" readonly />
+        <span asp-validation-for="Nombre" class="text-danger"></span>
+    </div>
+
+    <div class="custom-form-group">
+        <label asp-for="Precio" class="control-label"></label>
+        <input asp-for="Precio" class="form-control" maxlength="10" readonly />
+        <span asp-validation-for="Precio" class="text-danger"></span>
+    </div>
+    <div class="custom-form-group">
+        <label asp-for="Stock" class="control-label"></label>
+        <input asp-for="Stock" class="form-control" maxlength="10" readonly />
+        <span asp-validation-for="Stock" class="text-danger"></span>
+    </div>
+    <div class="custom-form-group">
+        <label asp-for="ProveedorID" class="control-label"></label>
+        <input asp-for="ProveedorID" class="form-control" type="text" pattern="[a-z]" size="10" readonly />
+        <span asp-validation-for="ProveedorID" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary custom-delete-btn">Eliminar registro</button>
+
+    <div>
+        <a asp-action="Index" class="btn btn-primary custom-regresar-btn mt-3">Regresar a la lista</a>
+    </div>
+}

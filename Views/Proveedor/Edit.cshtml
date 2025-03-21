@@ -1,0 +1,62 @@
+@model IronMongeryTools.Models.Proveedores
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h2>Editar proveedor</h2>
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit" id="edit-form" autocomplete="off" >
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="custom-form-group">
+                <label asp-for="ProveedorID" class="control-label"> </label>
+                <input asp-for="ProveedorID" class="form-control" maxlength="11" readonly/>
+                <span asp-validation-for="ProveedorID" class="text-danger"></span>
+            </div>
+            <div class="custom-form-group">
+                <label asp-for="Nombre" class="control-label"></label>
+                <input asp-for="Nombre" class="form-control" type="text" maxlength="60"/>
+                <span asp-validation-for="Nombre" class="text-danger"></span>
+            </div>
+            <div class="custom-form-group">
+                <label asp-for="FechaNacimiento" class="control-label"></label>
+                <input asp-for="FechaNacimiento" class="form-control" maxlength="10"/>
+                <span asp-validation-for="FechaNacimiento" class="text-danger"></span>
+            </div>
+           <div class="custom-form-group">
+             <label asp-for="Telefono" class="control-label"></label>
+             <input asp-for="Telefono" class="form-control" maxlength="10"/>
+             <span asp-validation-for="Telefono" class="text-danger"></span>
+           </div>
+          <div class="custom-form-group">
+            <label asp-for="Direccion" class="control-label"></label>
+            <input asp-for="Direccion" class="form-control" maxlength="10"/>
+            <span asp-validation-for="Direccion" class="text-danger"></span>
+         </div>
+         <div class="custom-form-group">
+           <label asp-for="Correo" class="control-label"></label>
+           <input asp-for="Correo" class="form-control" type="text" pattern="[a-z]" size="10" readonly/>
+           <span asp-validation-for="Correo" class="text-danger"></span>
+        </div>
+          <div class="custom-form-group">
+        <label>Categorías (separadas por comas):</label>
+        <input type="text" name="NuevasCategorias" class="form-control" value="@string.Join(",", (Model.Categorias?.Select(c => c.Nombre) ?? new List<string>()))" />
+    </div>
+    
+        <button type="submit" class="btn btn-primary custom-edit-btn">Guardar cambios</button>
+        </form>
+         @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger">
+                @TempData["Error"]
+            </div>
+        }
+  <div>
+        <a asp-action="Index" class="btn btn-primary custom-regresar-btn mt-3">Regresar a la lista</a>
+    </div>
+    @section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+    

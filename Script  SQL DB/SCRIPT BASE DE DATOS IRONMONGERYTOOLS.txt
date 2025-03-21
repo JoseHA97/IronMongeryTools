@@ -1,0 +1,1224 @@
+
+*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-SCRIPT BASE DE DATOS IRONMONGERYTOOLS INVENTORY SYSTEM *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+USE master;
+GO
+
+IF NOT EXISTS(SELECT name FROM master.dbo.sysdatabases WHERE NAME = 'IronMongeryTools')
+CREATE DATABASE IronMongeryTools;
+GO
+
+USE IronMongeryTools;
+GO
+
+
+
+IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Administrador')
+CREATE TABLE Administrador (
+    AdministradorID VARCHAR(36) PRIMARY KEY,
+    Nombre VARCHAR(60) NOT NULL,
+    FechaNacimiento VARCHAR(60) NOT NULL,
+    Correo VARCHAR(100) UNIQUE NOT NULL,
+    Token VARCHAR(255) NULL,
+    PasswordHash VARCHAR(255) NULL,
+    NewPasswordHash VARCHAR(255) NULL,
+    PasswordResetToken VARCHAR(255) NULL,
+    EmailConfirmationToken VARCHAR(255) NULL,
+    EmailConfirmed BIT
+);
+GO
+
+
+IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Usuarios')
+CREATE TABLE Usuarios (
+    UsuarioID VARCHAR(36) PRIMARY KEY,
+    Nombre VARCHAR(60) NOT NULL,
+    FechaNacimiento VARCHAR(60) NOT NULL,
+    Correo VARCHAR(100) UNIQUE NOT NULL,
+    Token VARCHAR(255) NULL,
+    PasswordHash VARCHAR(255) NULL,
+    NewPasswordHash VARCHAR(255) NULL,
+    PasswordResetToken VARCHAR(255) NULL,
+    EmailConfirmationToken VARCHAR(255) NULL,
+    EmailConfirmed BIT
+);
+GO
+
+IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Proveedores')
+CREATE TABLE Proveedores (
+    ProveedorID VARCHAR(36) PRIMARY KEY,
+    Nombre VARCHAR(60) NOT NULL,
+    FechaNacimiento VARCHAR(60) NOT NULL,
+    Telefono VARCHAR(20) NULL,
+    Correo VARCHAR(100) UNIQUE NOT NULL,
+    Direccion VARCHAR(255) NULL,
+    Token VARCHAR(255) NULL,
+    PasswordHash VARCHAR(255) NULL,
+    NewPasswordHash VARCHAR(255) NULL,
+    PasswordResetToken VARCHAR(255) NULL,
+    EmailConfirmationToken VARCHAR(255) NULL,
+    EmailConfirmed BIT
+);
+GO
+
+
+CREATE TABLE Productos (
+    ProductoID VARCHAR(36) PRIMARY KEY,
+    Nombre VARCHAR(60) NOT NULL,
+    Categoria VARCHAR(60) NOT NULL,
+    Precio DECIMAL(10, 2) NOT NULL,
+    Stock INT NOT NULL,
+    ProveedorID VARCHAR(36), 
+    FOREIGN KEY (ProveedorID) REFERENCES Proveedores(ProveedorID)  
+);
+GO
+
+
+CREATE TABLE Ventas (
+    VentasID VARCHAR(36) PRIMARY KEY,
+    UsuarioID VARCHAR(36),  
+    Fecha DATETIME DEFAULT GETDATE(),
+    Total DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (UsuarioID) REFERENCES Usuarios(UsuarioID) 
+);
+GO
+
+CREATE TABLE DetallesVenta (
+    DetallesVentaID VARCHAR(36) PRIMARY KEY,
+    VentaID VARCHAR(36),  
+    ProductoID VARCHAR(36),  
+    Cantidad INT NOT NULL,
+    Subtotal DECIMAL(10, 2) NOT NULL,
+    Fecha DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (VentaID) REFERENCES Ventas(VentasID),  
+    FOREIGN KEY (ProductoID) REFERENCES Productos(ProductoID) 
+);
+GO
+
+CREATE TABLE MovimientosInventario (
+    MovimientosInventarioID VARCHAR(36) PRIMARY KEY,
+    ProductoID VARCHAR(36),  
+    TipoMovimiento VARCHAR(10) NOT NULL, 
+    Cantidad INT NOT NULL,
+    Fecha DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (ProductoID) REFERENCES Productos(ProductoID)  
+);
+GO
+
+CREATE TABLE Categorias (
+    CategoriaID INT PRIMARY KEY IDENTITY(1,1),
+    Nombre VARCHAR(60) NOT NULL,
+    ProveedorID VARCHAR(36) NOT NULL,
+    CONSTRAINT FK_Categorias_Proveedores FOREIGN KEY (ProveedorID) REFERENCES Proveedores(ProveedorID)
+);GO
+
+CREATE TABLE ProductoCategoria (
+    ProductoID VARCHAR(36) NOT NULL,
+    CategoriaID INT NOT NULL,
+    CONSTRAINT PK_ProductoCategoria PRIMARY KEY (ProductoID, CategoriaID),
+    CONSTRAINT FK_ProductoCategoria_Producto FOREIGN KEY (ProductoID) REFERENCES Productos(ProductoID),
+    CONSTRAINT FK_ProductoCategoria_Categoria FOREIGN KEY (CategoriaID) REFERENCES Categorias(CategoriaID)
+);GO
+
+*----------------------------------------------------------------PROCEDIMIENTOS--------------------------------------------------------------------------------------------------------*
+
+******************************************************ADMINISTRADOR**************************************************************
+
+CREATE PROCEDURE usp_Administrador_Registrar
+    @AdministradorID VARCHAR(36),
+    @Nombre VARCHAR(60),
+    @FechaNacimiento VARCHAR(60),
+    @Correo VARCHAR(100),
+    @Password VARCHAR(255),
+    @Token VARCHAR(255) = NULL,
+    @PasswordHash VARCHAR(255) = NULL,
+    @NewPasswordHash VARCHAR(255) = NULL,
+    @PasswordResetToken VARCHAR(255) = NULL,
+    @EmailConfirmationToken VARCHAR(255) = NULL,
+    @EmailConfirmed BIT = 0
+AS
+BEGIN
+    -- Verificar si el correo ya está registrado
+    IF EXISTS(SELECT 1 FROM Administrador WHERE Correo = @Correo)
+    BEGIN
+        RAISERROR('El correo ya está registrado.', 16, 1);
+        RETURN;
+    END
+
+    -- Verificar si el AdministradorID ya existe
+    IF EXISTS(SELECT 1 FROM Administrador WHERE AdministradorID = @AdministradorID)
+    BEGIN
+        RAISERROR('El AdministradorID ya está en uso.', 16, 1);
+        RETURN;
+    END
+
+    -- Insertar el nuevo administrador
+    INSERT INTO Administrador (
+        AdministradorID, 
+        Nombre, 
+        FechaNacimiento, 
+        Correo, 
+        Password, 
+        Token, 
+        PasswordHash, 
+        NewPasswordHash, 
+        PasswordResetToken, 
+        EmailConfirmationToken, 
+        EmailConfirmed
+    )
+    VALUES (
+        @AdministradorID, 
+        @Nombre, 
+        @FechaNacimiento, 
+        @Correo, 
+        @Password, 
+        @Token, 
+        @PasswordHash, 
+        @NewPasswordHash, 
+        @PasswordResetToken, 
+        @EmailConfirmationToken, 
+        @EmailConfirmed
+    );
+END
+GO
+
+
+CREATE PROCEDURE usp_Administrador_Modificar
+    @AdministradorID VARCHAR(36),
+    @Nombre VARCHAR(60),
+    @FechaNacimiento VARCHAR(60),
+    @Correo VARCHAR(100),
+    @Password VARCHAR(255) = NULL,
+    @Token VARCHAR(255) = NULL,
+    @PasswordHash VARCHAR(255) = NULL,
+    @NewPasswordHash VARCHAR(255) = NULL,
+    @PasswordResetToken VARCHAR(255) = NULL,
+    @EmailConfirmationToken VARCHAR(255) = NULL,
+    @EmailConfirmed BIT = NULL
+AS
+BEGIN
+    -- Verificar si el administrador existe
+    IF NOT EXISTS(SELECT 1 FROM Administrador WHERE AdministradorID = @AdministradorID)
+    BEGIN
+        RAISERROR('El administrador no existe.', 16, 1);
+        RETURN;
+    END
+
+    -- Actualizar los datos
+    UPDATE Administrador
+    SET 
+        Nombre = @Nombre,
+        FechaNacimiento = @FechaNacimiento,
+        Correo = @Correo,
+        Password = ISNULL(@Password, Password), -- Solo actualiza si se proporciona un valor
+        Token = ISNULL(@Token, Token),
+        PasswordHash = ISNULL(@PasswordHash, PasswordHash),
+        NewPasswordHash = ISNULL(@NewPasswordHash, NewPasswordHash),
+        PasswordResetToken = ISNULL(@PasswordResetToken, PasswordResetToken),
+        EmailConfirmationToken = ISNULL(@EmailConfirmationToken, EmailConfirmationToken),
+        EmailConfirmed = ISNULL(@EmailConfirmed, EmailConfirmed)
+    WHERE AdministradorID = @AdministradorID;
+END
+GO
+
+
+
+CREATE PROCEDURE usp_Administrador_Obtener
+    @AdministradorID VARCHAR(36)
+AS
+BEGIN
+    -- Verificar si el administrador existe
+    IF NOT EXISTS(SELECT 1 FROM Administrador WHERE AdministradorID = @AdministradorID)
+    BEGIN
+        RAISERROR('El administrador no existe.', 16, 1);
+        RETURN;
+    END
+
+    -- Obtener los datos del administrador
+    SELECT 
+        AdministradorID, 
+        Nombre, 
+        FechaNacimiento, 
+        Correo, 
+        Password, 
+        Token, 
+        PasswordHash, 
+        NewPasswordHash, 
+        PasswordResetToken, 
+        EmailConfirmationToken, 
+        EmailConfirmed
+    FROM Administrador
+    WHERE AdministradorID = @AdministradorID;
+END
+GO
+
+
+CREATE PROCEDURE usp_Administrador_Listar
+AS
+BEGIN
+    SELECT 
+        AdministradorID, 
+        Nombre, 
+        FechaNacimiento, 
+        Correo, 
+        Password, 
+        Token, 
+        PasswordHash, 
+        NewPasswordHash, 
+        PasswordResetToken, 
+        EmailConfirmationToken, 
+        EmailConfirmed
+    FROM Administrador;
+END
+GO
+
+
+CREATE PROCEDURE usp_Administrador_Eliminar
+    @AdministradorID VARCHAR(36)
+AS
+BEGIN
+    -- Verificar si el administrador existe
+    IF NOT EXISTS(SELECT 1 FROM Administrador WHERE AdministradorID = @AdministradorID)
+    BEGIN
+        RAISERROR('El administrador no existe.', 16, 1);
+        RETURN;
+    END
+
+    -- Eliminar el administrador
+    DELETE FROM Administrador WHERE AdministradorID = @AdministradorID;
+END
+GO
+
+
+
+
+
+**********************************************USUARIO*********************************************
+
+
+
+
+CREATE PROCEDURE usp_Usuarios_Registrar
+    @UsuarioID VARCHAR(36),
+    @Nombre VARCHAR(60),
+    @FechaNacimiento VARCHAR(60),
+    @Correo VARCHAR(100),
+    @Password VARCHAR(255),
+    @Token VARCHAR(255) = NULL,
+    @PasswordHash VARCHAR(255) = NULL,
+    @NewPasswordHash VARCHAR(255) = NULL,
+    @PasswordResetToken VARCHAR(255) = NULL,
+    @EmailConfirmationToken VARCHAR(255) = NULL,
+    @EmailConfirmed BIT = 0
+AS
+BEGIN
+    -- Verificar si el correo ya está registrado
+    IF EXISTS(SELECT 1 FROM Usuarios WHERE Correo = @Correo)
+    BEGIN
+        RAISERROR('El correo ya está registrado.', 16, 1);
+        RETURN;
+    END
+
+    -- Verificar si el UsuarioID ya existe
+    IF EXISTS(SELECT 1 FROM Usuarios WHERE UsuarioID = @UsuarioID)
+    BEGIN
+        RAISERROR('El UsuarioID ya está en uso.', 16, 1);
+        RETURN;
+    END
+
+    -- Insertar el nuevo usuario
+    INSERT INTO Usuarios (
+        UsuarioID, 
+        Nombre, 
+        FechaNacimiento, 
+        Correo, 
+        Password, 
+        Token, 
+        PasswordHash, 
+        NewPasswordHash, 
+        PasswordResetToken, 
+        EmailConfirmationToken, 
+        EmailConfirmed
+    )
+    VALUES (
+        @UsuarioID, 
+        @Nombre, 
+        @FechaNacimiento, 
+        @Correo, 
+        @Password, 
+        @Token, 
+        @PasswordHash, 
+        @NewPasswordHash, 
+        @PasswordResetToken, 
+        @EmailConfirmationToken, 
+        @EmailConfirmed
+    );
+END
+GO
+
+
+
+CREATE PROCEDURE usp_Usuarios_Modificar
+    @UsuarioID VARCHAR(36),
+    @Nombre VARCHAR(60),
+    @FechaNacimiento VARCHAR(60),
+    @Correo VARCHAR(100),
+    @Password VARCHAR(255) = NULL,
+    @Token VARCHAR(255) = NULL,
+    @PasswordHash VARCHAR(255) = NULL,
+    @NewPasswordHash VARCHAR(255) = NULL,
+    @PasswordResetToken VARCHAR(255) = NULL,
+    @EmailConfirmationToken VARCHAR(255) = NULL,
+    @EmailConfirmed BIT = NULL
+AS
+BEGIN
+    -- Verificar si el usuario existe
+    IF NOT EXISTS(SELECT 1 FROM Usuarios WHERE UsuarioID = @UsuarioID)
+    BEGIN
+        RAISERROR('El usuario no existe.', 16, 1);
+        RETURN;
+    END
+
+    -- Actualizar los datos
+    UPDATE Usuarios
+    SET 
+        Nombre = @Nombre,
+        FechaNacimiento = @FechaNacimiento,
+        Correo = @Correo,
+        Password = ISNULL(@Password, Password), -- Solo actualiza si se proporciona un valor
+        Token = ISNULL(@Token, Token),
+        PasswordHash = ISNULL(@PasswordHash, PasswordHash),
+        NewPasswordHash = ISNULL(@NewPasswordHash, NewPasswordHash),
+        PasswordResetToken = ISNULL(@PasswordResetToken, PasswordResetToken),
+        EmailConfirmationToken = ISNULL(@EmailConfirmationToken, EmailConfirmationToken),
+        EmailConfirmed = ISNULL(@EmailConfirmed, EmailConfirmed)
+    WHERE UsuarioID = @UsuarioID;
+END
+GO
+
+
+CREATE PROCEDURE usp_Usuarios_Obtener
+    @UsuarioID VARCHAR(36)
+AS
+BEGIN
+    -- Verificar si el usuario existe
+    IF NOT EXISTS(SELECT 1 FROM Usuarios WHERE UsuarioID = @UsuarioID)
+    BEGIN
+        RAISERROR('El usuario no existe.', 16, 1);
+        RETURN;
+    END
+
+    -- Obtener los datos del usuario
+    SELECT 
+        UsuarioID, 
+        Nombre, 
+        FechaNacimiento, 
+        Correo, 
+        Password, 
+        Token, 
+        PasswordHash, 
+        NewPasswordHash, 
+        PasswordResetToken, 
+        EmailConfirmationToken, 
+        EmailConfirmed
+    FROM Usuarios
+    WHERE UsuarioID = @UsuarioID;
+END
+GO
+
+
+
+CREATE PROCEDURE usp_Usuarios_Listar
+AS
+BEGIN
+    SELECT 
+        UsuarioID, 
+        Nombre, 
+        FechaNacimiento, 
+        Correo, 
+        Password, 
+        Token, 
+        PasswordHash, 
+        NewPasswordHash, 
+        PasswordResetToken, 
+        EmailConfirmationToken, 
+        EmailConfirmed
+    FROM Usuarios;
+END
+GO
+
+
+CREATE PROCEDURE usp_Usuarios_Eliminar
+    @UsuarioID VARCHAR(36)
+AS
+BEGIN
+    -- Verificar si el usuario existe
+    IF NOT EXISTS(SELECT 1 FROM Usuarios WHERE UsuarioID = @UsuarioID)
+    BEGIN
+        RAISERROR('El usuario no existe.', 16, 1);
+        RETURN;
+    END
+
+    -- Eliminar el usuario
+    DELETE FROM Usuarios WHERE UsuarioID = @UsuarioID;
+END
+GO
+
+
+*******************************************************PROVEEDORES***************************************************************
+
+CREATE PROCEDURE usp_Proveedores_Registrar
+    @ProveedorID VARCHAR(36),
+    @Nombre VARCHAR(60),
+    @FechaNacimiento VARCHAR(60),
+    @Telefono VARCHAR(20) = NULL,
+    @Correo VARCHAR(100),
+    @Direccion VARCHAR(255) = NULL,
+    @Token VARCHAR(255) = NULL,
+    @PasswordHash VARCHAR(255) = NULL,
+    @NewPasswordHash VARCHAR(255) = NULL,
+    @PasswordResetToken VARCHAR(255) = NULL,
+    @EmailConfirmationToken VARCHAR(255) = NULL,
+    @EmailConfirmed BIT = 0
+AS
+BEGIN
+    -- Verificar si el correo ya está registrado
+    IF EXISTS(SELECT 1 FROM Proveedores WHERE Correo = @Correo)
+    BEGIN
+        RAISERROR('El correo ya está registrado.', 16, 1);
+        RETURN;
+    END
+
+    -- Verificar si el ProveedorID ya existe
+    IF EXISTS(SELECT 1 FROM Proveedores WHERE ProveedorID = @ProveedorID)
+    BEGIN
+        RAISERROR('El ProveedorID ya está en uso.', 16, 1);
+        RETURN;
+    END
+
+    -- Insertar el nuevo proveedor
+    INSERT INTO Proveedores (
+        ProveedorID, 
+        Nombre, 
+        FechaNacimiento, 
+        Telefono, 
+        Correo, 
+        Direccion, 
+        Token, 
+        PasswordHash, 
+        NewPasswordHash, 
+        PasswordResetToken, 
+        EmailConfirmationToken, 
+        EmailConfirmed
+    )
+    VALUES (
+        @ProveedorID, 
+        @Nombre, 
+        @FechaNacimiento, 
+        @Telefono, 
+        @Correo, 
+        @Direccion, 
+        @Token, 
+        @PasswordHash, 
+        @NewPasswordHash, 
+        @PasswordResetToken, 
+        @EmailConfirmationToken, 
+        @EmailConfirmed
+    );
+END
+GO
+
+
+
+CREATE PROCEDURE usp_Proveedores_Modificar
+    @ProveedorID VARCHAR(36),
+    @Nombre VARCHAR(60),
+    @FechaNacimiento VARCHAR(60),
+    @Telefono VARCHAR(20) = NULL,
+    @Correo VARCHAR(100),
+    @Direccion VARCHAR(255) = NULL,
+    @Token VARCHAR(255) = NULL,
+    @PasswordHash VARCHAR(255) = NULL,
+    @NewPasswordHash VARCHAR(255) = NULL,
+    @PasswordResetToken VARCHAR(255) = NULL,
+    @EmailConfirmationToken VARCHAR(255) = NULL,
+    @EmailConfirmed BIT = NULL
+AS
+BEGIN
+    -- Verificar si el proveedor existe
+    IF NOT EXISTS(SELECT 1 FROM Proveedores WHERE ProveedorID = @ProveedorID)
+    BEGIN
+        RAISERROR('El proveedor no existe.', 16, 1);
+        RETURN;
+    END
+
+    -- Actualizar los datos
+    UPDATE Proveedores
+    SET 
+        Nombre = @Nombre,
+        FechaNacimiento = @FechaNacimiento,
+        Telefono = ISNULL(@Telefono, Telefono),
+        Correo = @Correo,
+        Direccion = ISNULL(@Direccion, Direccion),
+        Token = ISNULL(@Token, Token),
+        PasswordHash = ISNULL(@PasswordHash, PasswordHash),
+        NewPasswordHash = ISNULL(@NewPasswordHash, NewPasswordHash),
+        PasswordResetToken = ISNULL(@PasswordResetToken, PasswordResetToken),
+        EmailConfirmationToken = ISNULL(@EmailConfirmationToken, EmailConfirmationToken),
+        EmailConfirmed = ISNULL(@EmailConfirmed, EmailConfirmed)
+    WHERE ProveedorID = @ProveedorID;
+END
+GO
+
+
+
+CREATE PROCEDURE usp_Proveedores_Obtener
+    @ProveedorID VARCHAR(36)
+AS
+BEGIN
+    -- Verificar si el proveedor existe
+    IF NOT EXISTS(SELECT 1 FROM Proveedores WHERE ProveedorID = @ProveedorID)
+    BEGIN
+        RAISERROR('El proveedor no existe.', 16, 1);
+        RETURN;
+    END
+
+    -- Obtener los datos del proveedor
+    SELECT 
+        ProveedorID, 
+        Nombre, 
+        FechaNacimiento, 
+        Telefono, 
+        Correo, 
+        Direccion, 
+        Token, 
+        PasswordHash, 
+        NewPasswordHash, 
+        PasswordResetToken, 
+        EmailConfirmationToken, 
+        EmailConfirmed
+    FROM Proveedores
+    WHERE ProveedorID = @ProveedorID;
+END
+GO
+
+
+CREATE PROCEDURE usp_Proveedores_Listar
+AS
+BEGIN
+    SELECT 
+        ProveedorID, 
+        Nombre, 
+        FechaNacimiento, 
+        Telefono, 
+        Correo, 
+        Direccion, 
+        Token, 
+        PasswordHash, 
+        NewPasswordHash, 
+        PasswordResetToken, 
+        EmailConfirmationToken, 
+        EmailConfirmed
+    FROM Proveedores;
+END
+GO
+
+
+
+CREATE PROCEDURE usp_Proveedores_Eliminar
+    @ProveedorID VARCHAR(36)
+AS
+BEGIN
+    -- Verificar si el proveedor existe
+    IF NOT EXISTS(SELECT 1 FROM Proveedores WHERE ProveedorID = @ProveedorID)
+    BEGIN
+        RAISERROR('El proveedor no existe.', 16, 1);
+        RETURN;
+    END
+
+    -- Eliminar el proveedor
+    DELETE FROM Proveedores WHERE ProveedorID = @ProveedorID;
+END
+GO
+
+
+
+*********************************************************PRODUCTOS*************************************************************
+
+
+CREATE PROCEDURE usp_Productos_Registrar
+    @ProductoID VARCHAR(36),
+    @Nombre VARCHAR(60),
+    @Categoria VARCHAR(60),
+    @Precio DECIMAL(10, 2),
+    @Stock INT,
+    @ProveedorID VARCHAR(20)
+AS
+BEGIN
+    -- Verificar si el ProductoID ya existe
+    IF EXISTS(SELECT 1 FROM Productos WHERE ProductoID = @ProductoID)
+    BEGIN
+        RAISERROR('El ProductoID ya está en uso.', 16, 1);
+        RETURN;
+    END
+
+    -- Verificar si el ProveedorID existe
+    IF NOT EXISTS(SELECT 1 FROM Proveedores WHERE ProveedorID = @ProveedorID)
+    BEGIN
+        RAISERROR('El ProveedorID no existe.', 16, 1);
+        RETURN;
+    END
+
+    -- Insertar el nuevo producto
+    INSERT INTO Productos (
+        ProductoID, 
+        Nombre, 
+        Categoria, 
+        Precio, 
+        Stock, 
+        ProveedorID
+    )
+    VALUES (
+        @ProductoID, 
+        @Nombre, 
+        @Categoria, 
+        @Precio, 
+        @Stock, 
+        @ProveedorID
+    );
+END
+GO
+
+
+
+CREATE PROCEDURE usp_Productos_Modificar
+    @ProductoID VARCHAR(36),
+    @Nombre VARCHAR(60),
+    @Categoria VARCHAR(60),
+    @Precio DECIMAL(10, 2),
+    @Stock INT,
+    @ProveedorID VARCHAR(20)
+AS
+BEGIN
+    -- Verificar si el producto existe
+    IF NOT EXISTS(SELECT 1 FROM Productos WHERE ProductoID = @ProductoID)
+    BEGIN
+        RAISERROR('El producto no existe.', 16, 1);
+        RETURN;
+    END
+
+    -- Verificar si el ProveedorID existe
+    IF NOT EXISTS(SELECT 1 FROM Proveedores WHERE ProveedorID = @ProveedorID)
+    BEGIN
+        RAISERROR('El ProveedorID no existe.', 16, 1);
+        RETURN;
+    END
+
+    -- Actualizar los datos
+    UPDATE Productos
+    SET 
+        Nombre = @Nombre,
+        Categoria = @Categoria,
+        Precio = @Precio,
+        Stock = @Stock,
+        ProveedorID = @ProveedorID
+    WHERE ProductoID = @ProductoID;
+END
+GO
+
+
+
+CREATE PROCEDURE usp_Productos_Obtener
+    @ProductoID VARCHAR(36)
+AS
+BEGIN
+    -- Verificar si el producto existe
+    IF NOT EXISTS(SELECT 1 FROM Productos WHERE ProductoID = @ProductoID)
+    BEGIN
+        RAISERROR('El producto no existe.', 16, 1);
+        RETURN;
+    END
+
+    -- Obtener los datos del producto
+    SELECT 
+        ProductoID, 
+        Nombre, 
+        Categoria, 
+        Precio, 
+        Stock, 
+        ProveedorID
+    FROM Productos
+    WHERE ProductoID = @ProductoID;
+END
+GO
+
+
+
+CREATE PROCEDURE usp_Productos_Listar
+AS
+BEGIN
+    SELECT 
+        ProductoID, 
+        Nombre, 
+        Categoria, 
+        Precio, 
+        Stock, 
+        ProveedorID
+    FROM Productos;
+END
+GO
+
+
+
+CREATE PROCEDURE usp_Productos_Eliminar
+    @ProductoID VARCHAR(36)
+AS
+BEGIN
+    -- Verificar si el producto existe
+    IF NOT EXISTS(SELECT 1 FROM Productos WHERE ProductoID = @ProductoID)
+    BEGIN
+        RAISERROR('El producto no existe.', 16, 1);
+        RETURN;
+    END
+
+    -- Eliminar el producto
+    DELETE FROM Productos WHERE ProductoID = @ProductoID;
+END
+GO
+
+
+
+
+******************************************************VENTAS******************************************************************************
+
+
+
+CREATE PROCEDURE usp_Ventas_Registrar
+    @VentasID VARCHAR(36),
+    @UsuarioID VARCHAR(36),
+    @Total DECIMAL(10, 2)
+AS
+BEGIN
+    -- Verificar si el VentasID ya existe
+    IF EXISTS(SELECT 1 FROM Ventas WHERE VentasID = @VentasID)
+    BEGIN
+        RAISERROR('El VentasID ya está en uso.', 16, 1);
+        RETURN;
+    END
+
+    -- Verificar si el UsuarioID existe
+    IF NOT EXISTS(SELECT 1 FROM Usuarios WHERE UsuarioID = @UsuarioID)
+    BEGIN
+        RAISERROR('El UsuarioID no existe.', 16, 1);
+        RETURN;
+    END
+
+    -- Insertar la nueva venta
+    INSERT INTO Ventas (
+        VentasID, 
+        UsuarioID, 
+        Total
+    )
+    VALUES (
+        @VentasID, 
+        @UsuarioID, 
+        @Total
+    );
+END
+GO
+
+
+
+CREATE PROCEDURE usp_Ventas_Modificar
+    @VentasID VARCHAR(36),
+    @UsuarioID VARCHAR(36),
+    @Total DECIMAL(10, 2)
+AS
+BEGIN
+    -- Verificar si la venta existe
+    IF NOT EXISTS(SELECT 1 FROM Ventas WHERE VentasID = @VentasID)
+    BEGIN
+        RAISERROR('La venta no existe.', 16, 1);
+        RETURN;
+    END
+
+    -- Verificar si el UsuarioID existe
+    IF NOT EXISTS(SELECT 1 FROM Usuarios WHERE UsuarioID = @UsuarioID)
+    BEGIN
+        RAISERROR('El UsuarioID no existe.', 16, 1);
+        RETURN;
+    END
+
+    -- Actualizar los datos
+    UPDATE Ventas
+    SET 
+        UsuarioID = @UsuarioID,
+        Total = @Total
+    WHERE VentasID = @VentasID;
+END
+GO
+
+
+
+CREATE PROCEDURE usp_Ventas_Obtener
+    @VentasID VARCHAR(36)
+AS
+BEGIN
+    -- Verificar si la venta existe
+    IF NOT EXISTS(SELECT 1 FROM Ventas WHERE VentasID = @VentasID)
+    BEGIN
+        RAISERROR('La venta no existe.', 16, 1);
+        RETURN;
+    END
+
+    -- Obtener los datos de la venta
+    SELECT 
+        VentasID, 
+        UsuarioID, 
+        Fecha, 
+        Total
+    FROM Ventas
+    WHERE VentasID = @VentasID;
+END
+GO
+
+
+CREATE PROCEDURE usp_Ventas_Listar
+AS
+BEGIN
+    SELECT 
+        VentasID, 
+        UsuarioID, 
+        Fecha, 
+        Total
+    FROM Ventas;
+END
+GO
+
+
+
+CREATE PROCEDURE usp_Ventas_Eliminar
+    @VentasID VARCHAR(36)
+AS
+BEGIN
+    -- Verificar si la venta existe
+    IF NOT EXISTS(SELECT 1 FROM Ventas WHERE VentasID = @VentasID)
+    BEGIN
+        RAISERROR('La venta no existe.', 16, 1);
+        RETURN;
+    END
+
+    -- Eliminar la venta
+    DELETE FROM Ventas WHERE VentasID = @VentasID;
+END
+GO
+
+
+
+*****************************************************DETALLEVENTAS***********************************************************
+
+
+
+CREATE PROCEDURE usp_DetallesVenta_Registrar
+    @DetallesVentaID VARCHAR(36),
+    @VentaID VARCHAR(36),
+    @ProductoID VARCHAR(36),
+    @Cantidad INT,
+    @Subtotal DECIMAL(10, 2)
+AS
+BEGIN
+    -- Verificar si el DetallesVentaID ya existe
+    IF EXISTS(SELECT 1 FROM DetallesVenta WHERE DetallesVentaID = @DetallesVentaID)
+    BEGIN
+        RAISERROR('El DetallesVentaID ya está en uso.', 16, 1);
+        RETURN;
+    END
+
+    -- Verificar si la VentaID existe
+    IF NOT EXISTS(SELECT 1 FROM Ventas WHERE VentasID = @VentaID)
+    BEGIN
+        RAISERROR('La VentaID no existe.', 16, 1);
+        RETURN;
+    END
+
+    -- Verificar si el ProductoID existe
+    IF NOT EXISTS(SELECT 1 FROM Productos WHERE ProductoID = @ProductoID)
+    BEGIN
+        RAISERROR('El ProductoID no existe.', 16, 1);
+        RETURN;
+    END
+
+    -- Insertar el nuevo detalle de venta
+    INSERT INTO DetallesVenta (
+        DetallesVentaID, 
+        VentaID, 
+        ProductoID, 
+        Cantidad, 
+        Subtotal
+    )
+    VALUES (
+        @DetallesVentaID, 
+        @VentaID, 
+        @ProductoID, 
+        @Cantidad, 
+        @Subtotal
+    );
+END
+GO
+
+
+CREATE PROCEDURE usp_DetallesVenta_Modificar
+    @DetallesVentaID VARCHAR(36),
+    @VentaID VARCHAR(36),
+    @ProductoID VARCHAR(36),
+    @Cantidad INT,
+    @Subtotal DECIMAL(10, 2)
+AS
+BEGIN
+    -- Verificar si el detalle de venta existe
+    IF NOT EXISTS(SELECT 1 FROM DetallesVenta WHERE DetallesVentaID = @DetallesVentaID)
+    BEGIN
+        RAISERROR('El detalle de venta no existe.', 16, 1);
+        RETURN;
+    END
+
+    -- Verificar si la VentaID existe
+    IF NOT EXISTS(SELECT 1 FROM Ventas WHERE VentasID = @VentaID)
+    BEGIN
+        RAISERROR('La VentaID no existe.', 16, 1);
+        RETURN;
+    END
+
+    -- Verificar si el ProductoID existe
+    IF NOT EXISTS(SELECT 1 FROM Productos WHERE ProductoID = @ProductoID)
+    BEGIN
+        RAISERROR('El ProductoID no existe.', 16, 1);
+        RETURN;
+    END
+
+    -- Actualizar los datos
+    UPDATE DetallesVenta
+    SET 
+        VentaID = @VentaID,
+        ProductoID = @ProductoID,
+        Cantidad = @Cantidad,
+        Subtotal = @Subtotal
+    WHERE DetallesVentaID = @DetallesVentaID;
+END
+GO
+
+
+
+CREATE PROCEDURE usp_DetallesVenta_Obtener
+    @DetallesVentaID VARCHAR(36)
+AS
+BEGIN
+    -- Verificar si el detalle de venta existe
+    IF NOT EXISTS(SELECT 1 FROM DetallesVenta WHERE DetallesVentaID = @DetallesVentaID)
+    BEGIN
+        RAISERROR('El detalle de venta no existe.', 16, 1);
+        RETURN;
+    END
+
+    -- Obtener los datos del detalle de venta
+    SELECT 
+        DetallesVentaID, 
+        VentaID, 
+        ProductoID, 
+        Cantidad, 
+        Subtotal, 
+        Fecha
+    FROM DetallesVenta
+    WHERE DetallesVentaID = @DetallesVentaID;
+END
+GO
+
+
+
+CREATE PROCEDURE usp_DetallesVenta_Listar
+AS
+BEGIN
+    SELECT 
+        DetallesVentaID, 
+        VentaID, 
+        ProductoID, 
+        Cantidad, 
+        Subtotal, 
+        Fecha
+    FROM DetallesVenta;
+END
+GO
+
+
+
+CREATE PROCEDURE usp_DetallesVenta_Eliminar
+    @DetallesVentaID VARCHAR(36)
+AS
+BEGIN
+    -- Verificar si el detalle de venta existe
+    IF NOT EXISTS(SELECT 1 FROM DetallesVenta WHERE DetallesVentaID = @DetallesVentaID)
+    BEGIN
+        RAISERROR('El detalle de venta no existe.', 16, 1);
+        RETURN;
+    END
+
+    -- Eliminar el detalle de venta
+    DELETE FROM DetallesVenta WHERE DetallesVentaID = @DetallesVentaID;
+END
+GO
+
+
+
+****************************************************MOVIENTOSINVENTARIO********************************************************************
+
+
+
+CREATE PROCEDURE usp_MovimientosInventario_Registrar
+    @MovimientosInventarioID VARCHAR(36),
+    @ProductoID VARCHAR(36),
+    @TipoMovimiento VARCHAR(36), -- 'Entrada' o 'Salida'
+    @Cantidad INT
+AS
+BEGIN
+    -- Verificar si el MovimientosInventarioID ya existe
+    IF EXISTS(SELECT 1 FROM MovimientosInventario WHERE MovimientosInventarioID = @MovimientosInventarioID)
+    BEGIN
+        RAISERROR('El MovimientosInventarioID ya está en uso.', 16, 1);
+        RETURN;
+    END
+
+    -- Verificar si el ProductoID existe
+    IF NOT EXISTS(SELECT 1 FROM Productos WHERE ProductoID = @ProductoID)
+    BEGIN
+        RAISERROR('El ProductoID no existe.', 16, 1);
+        RETURN;
+    END
+
+    -- Validar el tipo de movimiento
+    IF @TipoMovimiento NOT IN ('Entrada', 'Salida')
+    BEGIN
+        RAISERROR('El TipoMovimiento debe ser "Entrada" o "Salida".', 16, 1);
+        RETURN;
+    END
+
+    -- Insertar el nuevo movimiento de inventario
+    INSERT INTO MovimientosInventario (
+        MovimientosInventarioID, 
+        ProductoID, 
+        TipoMovimiento, 
+        Cantidad
+    )
+    VALUES (
+        @MovimientosInventarioID, 
+        @ProductoID, 
+        @TipoMovimiento, 
+        @Cantidad
+    );
+END
+GO
+
+
+
+
+CREATE PROCEDURE usp_MovimientosInventario_Modificar
+    @MovimientosInventarioID VARCHAR(36),
+    @ProductoID VARCHAR(36),
+    @TipoMovimiento VARCHAR(36), -- 'Entrada' o 'Salida'
+    @Cantidad INT
+AS
+BEGIN
+    -- Verificar si el movimiento de inventario existe
+    IF NOT EXISTS(SELECT 1 FROM MovimientosInventario WHERE MovimientosInventarioID = @MovimientosInventarioID)
+    BEGIN
+        RAISERROR('El movimiento de inventario no existe.', 16, 1);
+        RETURN;
+    END
+
+    -- Verificar si el ProductoID existe
+    IF NOT EXISTS(SELECT 1 FROM Productos WHERE ProductoID = @ProductoID)
+    BEGIN
+        RAISERROR('El ProductoID no existe.', 16, 1);
+        RETURN;
+    END
+
+    -- Validar el tipo de movimiento
+    IF @TipoMovimiento NOT IN ('Entrada', 'Salida')
+    BEGIN
+        RAISERROR('El TipoMovimiento debe ser "Entrada" o "Salida".', 16, 1);
+        RETURN;
+    END
+
+    -- Actualizar los datos
+    UPDATE MovimientosInventario
+    SET 
+        ProductoID = @ProductoID,
+        TipoMovimiento = @TipoMovimiento,
+        Cantidad = @Cantidad
+    WHERE MovimientosInventarioID = @MovimientosInventarioID;
+END
+GO
+
+
+
+
+
+CREATE PROCEDURE usp_MovimientosInventario_Obtener
+    @MovimientosInventarioID VARCHAR(36)
+AS
+BEGIN
+    -- Verificar si el movimiento de inventario existe
+    IF NOT EXISTS(SELECT 1 FROM MovimientosInventario WHERE MovimientosInventarioID = @MovimientosInventarioID)
+    BEGIN
+        RAISERROR('El movimiento de inventario no existe.', 16, 1);
+        RETURN;
+    END
+
+    -- Obtener los datos del movimiento de inventario
+    SELECT 
+        MovimientosInventarioID, 
+        ProductoID, 
+        TipoMovimiento, 
+        Cantidad, 
+        Fecha
+    FROM MovimientosInventario
+    WHERE MovimientosInventarioID = @MovimientosInventarioID;
+END
+GO
+
+
+
+
+CREATE PROCEDURE usp_MovimientosInventario_Listar
+AS
+BEGIN
+    SELECT 
+        MovimientosInventarioID, 
+        ProductoID, 
+        TipoMovimiento, 
+        Cantidad, 
+        Fecha
+    FROM MovimientosInventario;
+END
+GO
+
+
+
+CREATE PROCEDURE usp_MovimientosInventario_Eliminar
+    @MovimientosInventarioID VARCHAR(36)
+AS
+BEGIN
+    -- Verificar si el movimiento de inventario existe
+    IF NOT EXISTS(SELECT 1 FROM MovimientosInventario WHERE MovimientosInventarioID = @MovimientosInventarioID)
+    BEGIN
+        RAISERROR('El movimiento de inventario no existe.', 16, 1);
+        RETURN;
+    END
+
+    -- Eliminar el movimiento de inventario
+    DELETE FROM MovimientosInventario WHERE MovimientosInventarioID = @MovimientosInventarioID;
+END
+GO
+
+
+
+
+

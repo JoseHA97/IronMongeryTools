@@ -1,0 +1,99 @@
+﻿@model IronMongeryTools.Models.Productos
+
+@{
+    ViewData["Title"] = "Create";
+    var categoriasPorProveedorJson = ViewBag.CategoriasPorProveedorJson;
+}
+
+<h2>Crear producto</h2>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create" id="create-form" autocomplete="off">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="custom-form-group">
+                <label asp-for="ProductoID" class="control-label"></label>
+                <input asp-for="ProductoID" class="form-control" maxlength="13" />
+                <span asp-validation-for="ProductoID" class="text-danger"></span>
+            </div>
+            <div class="custom-form-group">
+                <label for="ProveedorID">Seleccione un proveedor:</label>
+                <select id="ProveedorID" name="ProveedorID" class="form-control">
+                    <option value="">Seleccione un proveedor</option>
+                    @foreach (var proveedor in ViewBag.ProveedorList as List<SelectListItem>)
+                    {
+                        <option value="@proveedor.Value">@proveedor.Text</option>
+                    }
+                </select>
+            </div>
+
+            <div class="custom-form-group">
+                <label for="CategoriaID">Seleccione una categoría:</label>
+                <select id="CategoriaID" name="CategoriaID" class="form-control" onchange="actualizarNombreCategoria()">
+                    <option value="">Seleccione una categoría</option>
+                </select>
+            </div>
+
+            <!-- Campo oculto para almacenar el nombre de la categoría seleccionada -->
+            <input type="hidden" id="Categoria" name="Categorias">
+
+            <div class="custom-form-group">
+                <label asp-for="Nombre" class="control-label"></label>
+                <input asp-for="Nombre" class="form-control" maxlength="30" />
+                <span asp-validation-for="Nombre" class="text-danger"></span>
+            </div>
+            <div class="custom-form-group">
+                <label asp-for="Stock" class="control-label"></label>
+                <input asp-for="Stock" class="form-control" maxlength="3" type="number" />
+                <span asp-validation-for="Stock" class="text-danger"></span>
+            </div>
+            <div class="custom-form-group">
+                <label asp-for="Precio" class="control-label"></label>
+                <input asp-for="Precio" type="number" class="form-control" maxlength="7" />
+                <span asp-validation-for="Precio" class="text-danger"></span>
+            </div>
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    // Obtener los datos de categorías por proveedor desde el ViewBag
+                    var categoriasPorProveedor = @Html.Raw(categoriasPorProveedorJson);
+
+                    var proveedorSelect = document.getElementById("ProveedorID");
+                    var categoriaSelect = document.getElementById("CategoriaID");
+                    var categoriaInput = document.getElementById("Categoria");
+
+                    // Actualizar categorías cuando se cambia el proveedor
+                    proveedorSelect.addEventListener("change", function () {
+                        var proveedorID = this.value;
+                        categoriaSelect.innerHTML = '<option value="">Seleccione una categoría</option>'; // Limpiar opciones
+                        categoriaInput.value = ""; // Limpiar nombre de categoría
+
+                        if (proveedorID && categoriasPorProveedor[proveedorID]) {
+                            categoriasPorProveedor[proveedorID].forEach(function (categoria) {
+                                var option = document.createElement("option");
+                                option.value = categoria.CategoriaID;
+                                option.textContent = categoria.Nombre;
+                                categoriaSelect.appendChild(option);
+                            });
+                        }
+                    });
+
+                    // Captura el nombre de la categoría seleccionada
+                    categoriaSelect.addEventListener("change", function () {
+                        var selectedOption = categoriaSelect.options[categoriaSelect.selectedIndex];
+                        categoriaInput.value = selectedOption.text; // Guardar el nombre
+                    });
+                });
+            </script>
+            <button type="submit" class="btn btn-primary custom-save-btn">Guardar registro</button>
+
+        </form>
+    </div>
+</div>
+<div>
+    <a asp-action="Index" class="btn btn-primary custom-regresar-btn mt-3">Regresar a la lista</a>
+</div>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

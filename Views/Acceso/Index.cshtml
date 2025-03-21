@@ -1,0 +1,64 @@
+@model IronMongeryTools.Models.Usuarios
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <style>
+        body {
+            background-color: #323233;
+            background-size: cover;
+            background-repeat: no-repeat;
+            color: #e9ecee;
+            
+        }
+    </style>
+</head>
+
+<body>
+    <div class="row mt-5">
+        <div class="col-sm-4 offset-sm-4">
+            <form asp-controller="Acceso" asp-action="Index" method="post">
+                <h2>Iniciar Sesión</h2>
+                <div class="mb-3">
+                    <label for="Correo">Correo Electrónico</label>
+                    <input type="email" id="Correo" name="Correo" class="form-control" required />
+                </div>
+                <div class="mb-3">
+                    <label for="PasswordHash">Contraseña</label>
+                    <input type="password" id="PasswordHash" name="PasswordHash" class="form-control" required />
+                </div>
+                <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
+                
+                <div class="btn btn-primary; top: -35px; right: -420px;">
+                    <a href="@Url.Action("Registro", "Acceso")" class="btn btn-primary">Registrarse</a>
+                </div>
+                <div class="mt-3">
+                    <a asp-controller="Acceso" asp-action="OlvidoContraseña" class="btn btn-link">¿Olvidó su
+                        contraseña?</a>
+                </div>
+            </form>
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger">
+                    @TempData["Error"]
+                </div>
+            }
+
+            @if (TempData["Mensaje"] != null)
+            {
+                <div class="alert alert-danger">
+                    @TempData["Mensaje"]
+                </div>
+            }
+        </div>
+    </div>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

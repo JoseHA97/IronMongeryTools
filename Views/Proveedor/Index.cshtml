@@ -1,0 +1,94 @@
+﻿@model IEnumerable<IronMongeryTools.Models.Proveedores>
+
+@{
+    ViewData["Title"] = "Proveedores";
+    var proveedorList = ViewBag.ProveedorList as List<SelectListItem>;
+}
+
+<h2>Todos los Proveedores</h2>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Crear</a>
+</p>
+<div class="content-wrapper">
+    <table class="table-custom" style="min-width: 1297px;">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.ProveedorID)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Nombre)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.FechaNacimiento)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Telefono)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Direccion)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Correo)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Categorias)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                var proveedor = proveedorList?.FirstOrDefault(p => p.Value == item.ProveedorID);
+                var proveedorNombre = proveedor != null ? proveedor.Text : "No asignado";
+                <tr>
+                    <td style="text-align: center;">
+                        @Html.DisplayFor(modelItem => item.ProveedorID)
+                    </td>
+                    <td style="text-align: center;">
+                        @Html.DisplayFor(modelItem => item.Nombre)
+                    </td>
+                    <td style="text-align: center;">
+                        @Html.DisplayFor(modelItem => item.FechaNacimiento)
+                    </td>
+                    <td style="text-align: center;">
+                        @Html.DisplayFor(modelItem => item.Telefono)
+                    </td>
+                    <td style="text-align: center;">
+                        @Html.DisplayFor(modelItem => item.Direccion)
+                    </td>
+                    <td style="text-align: center;">
+                        @Html.DisplayFor(modelItem => item.Correo)
+                    </td>
+                    <td style="text-align: center; padding-top: 10px;">
+                        @if (item.Categorias != null && item.Categorias.Any())
+                        {
+                            <ul style="list-style-type: none; padding-left: 0;">
+                                @foreach (var categoria in item.Categorias)
+                                {
+                                    <li>@categoria.Nombre</li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <span>No hay categorías asignadas.</span>
+                        }
+                    </td>
+
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.ProveedorID" class="btn btn-custom-edit">Editar</a> |
+                        <a asp-action="Details" asp-route-id="@item.ProveedorID" class="btn btn-custom-details">Detalles</a>|
+                        <a asp-action="Delete" asp-route-id="@item.ProveedorID" class="btn btn-custom-delete">Eliminar</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+
+    </table>
+</div>
+<footer class="footer">
+    <p>Total de registros: @ViewData["TotalProveedores"]</p>
+</footer>

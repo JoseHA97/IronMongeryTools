@@ -1,0 +1,45 @@
+@model IronMongeryTools.Models.DetallesVenta
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h2>Detalle de detalle de venta</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <div class="custom-form-group">
+        <label asp-for="DetallesVentaID" class="control-label"></label>
+        <input asp-for="DetallesVentaID" class="form-control" size="10" readonly />
+        <span asp-validation-for="DetallesVentaID" class="text-danger"></span>
+    </div>
+    <div class="custom-form-group">
+        <label asp-for="VentaID" class="control-label"></label>
+        <input asp-for="VentaID" class="form-control" size="60" readonly />
+        <span asp-validation-for="VentaID" class="text-danger"></span>
+    </div>
+    <div class="custom-form-group">
+        <label asp-for="ProductoID" class="control-label"></label>
+        <input asp-for="ProductoID" class="form-control" maxlength="10" readonly />
+        <span asp-validation-for="ProductoID" class="text-danger"></span>
+    </div>
+    <div class="custom-form-group">
+        <label asp-for="Cantidad" class="control-label"></label>
+        <input asp-for="Cantidad" class="form-control" maxlength="10" readonly />
+        <span asp-validation-for="Cantidad" class="text-danger"></span>
+    </div>
+    <div class="custom-form-group">
+        <label asp-for="Subtotal" class="control-label"></label>
+        <input asp-for="Subtotal" class="form-control" maxlength="10" readonly />
+        <span asp-validation-for="Subtotal" class="text-danger"></span>
+    </div>
+    <div class="custom-form-group">
+        <label asp-for="Fecha" class="control-label"></label>
+        <input asp-for="Fecha" class="form-control" maxlength="10" readonly />
+        <span asp-validation-for="Fecha" class="text-danger"></span>
+    </div>
+    <div>
+        <a asp-action="Index" class="btn btn-primary custom-regresar-btn mt-3">Regresar a la lista</a>
+    </div>
+}

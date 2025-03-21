@@ -1,0 +1,65 @@
+﻿@model IEnumerable<IronMongeryTools.Models.MovimientosInventario>
+
+@{
+    ViewData["Title"] = "Ventas";
+}
+
+<h2>Todos los movimientos de inventario</h2>
+
+<div class="content-wrapper">
+    <table class="table-custom" style="min-width: 1297px;">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.MovimientosInventarioID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ProductoID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TipoMovimiento)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Cantidad)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Fecha)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td style="text-align: center;">
+                    @Html.DisplayFor(modelItem => item.MovimientosInventarioID)
+                </td>
+                <td style="text-align: center;">
+                    @Html.DisplayFor(modelItem => item.ProductoID)
+                </td>
+                <td style="text-align: center;">
+                    @Html.DisplayFor(modelItem => item.TipoMovimiento)
+                </td>
+                <td style="text-align: center;">
+                    @Html.DisplayFor(modelItem => item.Cantidad)
+                </td>
+                <td style="text-align: center;">
+                    @Html.DisplayFor(modelItem => item.Fecha)
+                </td>
+                <td>
+                    
+                    <a asp-action="Edit" asp-route-id="@item.MovimientosInventarioID" class="btn btn-custom-edit">Editar</a> |
+                    <a asp-action="Details" asp-route-id="@item.MovimientosInventarioID" class="btn btn-custom-details">Detalles</a> |
+                    <a asp-action="Delete" asp-route-id="@item.MovimientosInventarioID" class="btn btn-custom-delete">Eliminar</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+</div>
+<footer class="footer">
+    <p>Total de registros: @ViewData["TotalMovimientoInventario"]</p>
+</footer>
+
+F

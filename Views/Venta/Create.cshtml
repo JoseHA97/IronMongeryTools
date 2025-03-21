@@ -1,0 +1,44 @@
+﻿@model IronMongeryTools.Models.Ventas
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h2>Crear venta</h2>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create" id="create-form" autocomplete="off">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="custom-form-group">
+                <label asp-for="VentasID" class="control-label"></label>
+                <input asp-for="VentasID" class="form-control" maxlength="11" />
+                <span asp-validation-for="VentasID" class="text-danger"></span>
+            </div>
+            <div class="custom-form-group">
+                <label asp-for="UsuarioID" class="control-label"></label>
+                <input asp-for="UsuarioID" class="form-control" maxlength="60" type="text" />
+                <span asp-validation-for="UsuarioID" class="text-danger"></span>
+            </div>
+            <div class="custom-form-group">
+                <label asp-for="Fecha" class="control-label"></label>
+                <input asp-for="Fecha" class="form-control" maxlength="10" />
+                <span asp-validation-for="Fecha" class="text-danger"></span>
+            </div>
+            <div class="custom-form-group">
+                <label asp-for="Total" class="control-label"></label>
+                <input asp-for="Total" class="form-control" maxlength="10" />
+                <span asp-validation-for="Total" class="text-danger"></span>
+            </div>
+            <button type="submit" class="btn btn-primary custom-save-btn">Guardar registro</button>
+        </form>
+    </div>
+</div>
+<div>
+    <a asp-action="Index" class="btn btn-primary custom-regresar-btn mt-3">Regresar a la lista</a>
+</div>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

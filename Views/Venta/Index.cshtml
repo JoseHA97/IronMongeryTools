@@ -1,0 +1,58 @@
+﻿@model IEnumerable<IronMongeryTools.Models.Ventas>
+
+@{
+    ViewData["Title"] = "Ventas";
+}
+
+<h2>Todas las ventas</h2>
+<p>
+    <a asp-action="Create" class="btn btn-primary">Crear</a>
+</p>
+<div class="content-wrapper">
+    <table class="table-custom" style="min-width: 1297px;">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.VentasID)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.UsuarioID)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Fecha)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Total)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td style="text-align: center;">
+                        @Html.DisplayFor(modelItem => item.VentasID)
+                    </td>
+                    <td style="text-align: center;">
+                        @Html.DisplayFor(modelItem => item.UsuarioID)
+                    </td>
+                    <td style="text-align: center;">
+                        @Html.DisplayFor(modelItem => item.Fecha)
+                    </td>
+                    <td style="text-align: center;">
+                        @item.Total.ToString("C", new System.Globalization.CultureInfo("es-CR"))
+                    </td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.VentasID" class="btn btn-custom-edit">Editar</a> |
+                        <a asp-action="Details" asp-route-id="@item.VentasID" class="btn btn-custom-details">Detalles</a> |
+                        <a asp-action="Delete" asp-route-id="@item.VentasID" class="btn btn-custom-delete">Eliminar</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<footer class="footer">
+    <p>Total de registros: @ViewData["TotalVentas"]</p>
+</footer>

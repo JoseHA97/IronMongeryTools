@@ -1,0 +1,123 @@
+
+
+/* Estilo para los títulos */
+h1, h2, h3 {
+  color: #0a6bcc;
+}
+
+.btn-custom-create {
+  background-color: #4CAF50; 
+  color: white; 
+}
+
+.btn-custom-create:hover {
+  background-color: #45a049; 
+}
+
+/* Botón Editar */
+.btn-custom-edit {
+  background-color: #52d813;
+  color: white;
+}
+
+.btn-custom-edit:hover {
+  background-color: #14b3e4cc; 
+}
+
+/* Botón Detalles */
+.btn-custom-details {
+  background-color: #f1f1f1;
+  color: white;
+}
+
+.btn-custom-details:hover {
+  background-color: #e29219; 
+}
+
+/* Botón Eliminar */
+.btn-custom-delete {
+  background-color: #020202;
+  color: white;
+}
+
+.btn-custom-delete:hover {
+  background-color: #da190b; 
+}
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+/* Modificar la apariencia de la tabla */
+.table-custom {
+  background-color: #0b97b9; 
+  border: 1px solid #ddd; 
+}
+
+.table-custom th {
+  background-color: #1b6ec2; 
+  color: rgb(16, 155, 197); 
+}
+
+.table-custom td {
+  color: #333; 
+}
+
+/* Estilo para las filas alternas */
+.table-custom tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+/* Estilo para las filas al pasar el cursor */
+.table-custom tr:hover {
+  background-color: #e6e6e6;
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 60px;
+}
+
+
+h1 {
+  font-family: 'Georgia', serif;  
+  font-size: 36px;  
+  color: #1a73e8;  
+  text-align: center;  
+  margin-top: 20px;  
+}
+
+h2 {
+  font-family: 'Verdana', sans-serif;  
+  font-size: 28px;  
+  color: #ff5722;  
+  margin-top: 20px;  
+  font-weight: normal;  
+}
+
+h3 {
+  font-family: 'Tahoma', sans-serif;  
+  font-size: 22px;  
+  color: #4caf50;  
+  text-transform: uppercase;  
+  margin-top: 15px;  
+}
+
+.no-bullets {
+  list-style: none;
+  padding-left: 0;
+}
