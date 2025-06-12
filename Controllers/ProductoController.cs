@@ -7,7 +7,7 @@ using System.Data;
 using System.Text.RegularExpressions;
 using IronMongeryTools.Services;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using System.Text.Json; 
+using System.Text.Json;
 
 namespace IronMongeryTools.Controllers
 {
@@ -85,6 +85,69 @@ namespace IronMongeryTools.Controllers
             }
 
             return listaProducto;
+        }
+
+        public IActionResult GetFilteredProducts(string sortBy = "Nombre", string sortDirection = "asc")
+        {
+            List<Productos> laLista = ObtenerProductos();
+
+            Dictionary<int, string> categoriasDict = CargarCategoriasDesdeBaseDeDatos();
+            foreach (var producto in laLista)
+            {
+                if (int.TryParse(producto.CategoriaID, out int categoriaID) && categoriasDict.ContainsKey(categoriaID))
+                {
+                    producto.CategoriaNombre = categoriasDict[categoriaID];
+                }
+                else
+                {
+                    producto.CategoriaNombre = "Sin categoría";
+                }
+            }
+
+            IQueryable<Productos> productosOrdenados = ApplySorting(laLista.AsQueryable(), sortBy, sortDirection);
+            List<Productos> productosFinales = productosOrdenados.ToList();
+            var proveedorController = new ProveedorController(MemoriaCache, _accesoService, emailService); // **¡Importante: Inyecta esto si es un servicio!**
+            List<Proveedores> listaProveedores = proveedorController.CargarProveedorDesdeBaseDeDatos(); // **Asegúrate de que este método existe y es accesible.**
+
+            ViewBag.ProveedorList = listaProveedores.Select(p => new SelectListItem
+            {
+                Value = p.ProveedorID,
+                Text = $"{p.ProveedorID} - {p.Nombre}"
+            }).ToList();
+
+            ViewData["TotalProductos"] = productosFinales.Count;
+            return PartialView("_ProductsListPartial", productosFinales);
+        }
+
+        private IQueryable<Productos> ApplySorting(IQueryable<Productos> products, string sortBy, string sortDirection)
+        {
+            bool isAscending = sortDirection.ToLower() == "asc";
+
+            switch (sortBy.ToLower())
+            {
+                case "id":
+                    products = isAscending ? products.OrderBy(p => p.ProductoID) : products.OrderByDescending(p => p.ProductoID);
+                    break;
+                case "nombre":
+                    products = isAscending ? products.OrderBy(p => p.Nombre) : products.OrderByDescending(p => p.Nombre);
+                    break;
+                case "precio":
+                    products = isAscending ? products.OrderBy(p => p.Precio) : products.OrderByDescending(p => p.Precio);
+                    break;
+                case "stock":
+                    products = isAscending ? products.OrderBy(p => p.Stock) : products.OrderByDescending(p => p.Stock);
+                    break;
+                case "categoria":
+                    products = isAscending ? products.OrderBy(p => p.CategoriaNombre) : products.OrderByDescending(p => p.CategoriaNombre);
+                    break;
+                case "proveedor":
+                    products = isAscending ? products.OrderBy(p => p.ProveedorID) : products.OrderByDescending(p => p.ProveedorID);
+                    break;
+                default:
+                    products = products.OrderBy(p => p.Nombre); // Orden por defecto
+                    break;
+            }
+            return products;
         }
 
         private Productos ObtenerProductos(string id)
