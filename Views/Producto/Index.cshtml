@@ -2,7 +2,7 @@
 
 @{
     ViewData["Title"] = "Productos";
-     var proveedorList = ViewBag.ProveedorList as List<SelectListItem>;
+    var proveedorList = ViewBag.ProveedorList as List<SelectListItem>;
 }
 
 <h2>Todos los productos</h2>
@@ -10,73 +10,64 @@
 <p>
     <a asp-action="Create" class="btn btn-primary">Crear</a>
 </p>
-<div class="content-wrapper">
-    <table class="table-custom" style="min-width: 1297dpx;">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.ProductoID)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Nombre)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CategoriaID)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CategoriaNombre)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Precio)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Stock)
-            </th>
-            <th>Proveedor
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            var proveedor = proveedorList?.FirstOrDefault(p => p.Value == item.ProveedorID);
-            var proveedorNombre = proveedor != null ? proveedor.Text : "No asignado";
-            <tr>
-                <td style="text-align: center;">
-                    @Html.DisplayFor(modelItem => item.ProductoID)
-                </td>
-                <td style="text-align: center;">
-                    @Html.DisplayFor(modelItem => item.Nombre)
-                </td>
-                <td style="text-align: center;">
-                    @Html.DisplayFor(modelItem => item.CategoriaID)
-                </td>
-                 <td style="text-align: center;">
-                    @Html.DisplayFor(modelItem => item.CategoriaNombre)
-                </td>
-                <td style="text-align: center;">
-                        @item.Precio.ToString("C", new System.Globalization.CultureInfo("es-CR"))
-                </td>
-                <td style="text-align: center;">
-                    @Html.DisplayFor(modelItem => item.Stock)
-                </td>
-                <td style="text-align: center; padding-top: 10px;">
-                    @proveedorNombre
-                </td>
-              
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.ProductoID" class="btn btn-custom-edit">Editar</a> |
-                    <a asp-action="Details" asp-route-id="@item.ProductoID" class="btn btn-custom-details">Detalles</a> |
-                    <a asp-action="Delete" asp-route-id="@item.ProductoID" class="btn btn-custom-delete">Eliminar</a>
-                </td>
-            </tr>
-        }
-    </tbody>
- 
-</table>
-</div>
-<footer class="footer">
-    <p>Total de registros: @ViewData["TotalProductos"]</p>
-</footer>
 
+<div class="content-wrapper">
+
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <div class="sort-container">
+                <div class="sort-label">
+                    <label for="sortBy">Ordenar por:</label>
+                    <select id="sortBy" class="sort form-control">
+                        <option value="Nombre:asc">Nombre: A a la Z</option>
+                        <option value="Nombre:desc">Nombre: Z a la A</option>
+                        <option value="Precio:asc">Precio: más bajo primero</option>
+                        <option value="Precio:desc">Precio: más caro primero</option>
+                        <option value="Stock:desc">Stock: mayor primero</option>
+                        <option value="Stock:asc">Stock: menor primero</option>
+                        <option value="Categoria:asc">Categoría: A a la Z</option>
+                        <option value="Categoria:desc">Categoría: Z a la A</option>
+                        <option value="Proveedor:asc">Proveedor: A a la Z</option>
+                        <option value="Proveedor:desc">Proveedor: Z a la A</option>
+                        <option value="Id:asc">Id: más bajo primero</option>
+                        <option value="Id:desc">Id: más alto primero</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div id="productsListContainer" class="content-wrapper">
+            @Html.Partial("_ProductsListPartial", Model)
+        </div>
+
+
+
+
+
+    </div>
+
+@section Scripts {
+        <script>
+            $(document).ready(function () {
+                $('#sortBy').on('change', function () {
+                    var selectedValue = $(this).val();
+
+                    var parts = selectedValue.split(':');
+                    var sortBy = parts[0];
+                    var sortDirection = parts[1];
+
+                    var url = '/Producto/GetFilteredProducts?sortBy=' + sortBy + '&sortDirection=' + sortDirection;
+                    $.ajax({
+                        url: url,
+                        type: 'GET',
+                        success: function (data) {
+                            $('#productsListContainer').html(data);
+                        },
+                        error: function (xhr, status, error) {
+                            console.error('Error al obtener los productos filtrados:', error);
+                        }
+                    });
+                });
+            });
+        </script>
+}
