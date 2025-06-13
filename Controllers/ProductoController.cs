@@ -116,7 +116,7 @@ namespace IronMongeryTools.Controllers
             }).ToList();
 
             ViewData["TotalProductos"] = productosFinales.Count;
-            return PartialView("_ProductsListPartial", productosFinales);
+            return PartialView("_ProductosListaParcial", productosFinales);
         }
 
         private IQueryable<Productos> ApplySorting(IQueryable<Productos> products, string sortBy, string sortDirection)

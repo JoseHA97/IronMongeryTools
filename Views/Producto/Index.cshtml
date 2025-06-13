@@ -14,36 +14,32 @@
 <div class="content-wrapper">
 
     <div class="row mb-3">
-        <div class="col-md-4">
+        <div class="col-md-3 ms-auto"> 
             <div class="sort-container">
                 <div class="sort-label">
                     <label for="sortBy">Ordenar por:</label>
                     <select id="sortBy" class="sort form-control">
-                        <option value="Nombre:asc">Nombre: A a la Z</option>
-                        <option value="Nombre:desc">Nombre: Z a la A</option>
-                        <option value="Precio:asc">Precio: más bajo primero</option>
-                        <option value="Precio:desc">Precio: más caro primero</option>
-                        <option value="Stock:desc">Stock: mayor primero</option>
-                        <option value="Stock:asc">Stock: menor primero</option>
-                        <option value="Categoria:asc">Categoría: A a la Z</option>
-                        <option value="Categoria:desc">Categoría: Z a la A</option>
-                        <option value="Proveedor:asc">Proveedor: A a la Z</option>
-                        <option value="Proveedor:desc">Proveedor: Z a la A</option>
                         <option value="Id:asc">Id: más bajo primero</option>
                         <option value="Id:desc">Id: más alto primero</option>
+                        <option value="Nombre:asc">Nombre: A a la Z</option>
+                        <option value="Nombre:desc">Nombre: Z a la A</option>
+                        <option value="Categoria:asc">Nombre Categoría: A a la Z</option>
+                        <option value="Categoria:desc">Nombre Categoría: Z a la A</option>
+                        <option value="Precio:asc">Precio: más bajo primero</option>
+                        <option value="Precio:desc">Precio: más caro primero</option>
+                        <option value="Stock:asc">Stock: menor primero</option>
+                        <option value="Stock:desc">Stock: mayor primero</option>
+                        <option value="Proveedor:asc">Id Proveedor: más bajo primero</option>
+                        <option value="Proveedor:desc">Id Proveedor: más alto primero</option>
+                        
                     </select>
                 </div>
             </div>
         </div>
 
         <div id="productsListContainer" class="content-wrapper">
-            @Html.Partial("_ProductsListPartial", Model)
+            @Html.Partial("_ProductosListaParcial", Model)
         </div>
-
-
-
-
-
     </div>
 
 @section Scripts {
