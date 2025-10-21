@@ -15,3 +15,5 @@ Como usuario, el proceso inicia con el registro y la confirmación de cuenta. Un
 Cuando se realiza una compra, esta queda registrada en el módulo de ventas, en los detalles de ventas y en los movimientos de inventario para su posterior consulta. Si el stock de un producto llega a cero, el sistema mostrará un mensaje al usuario informando la falta de existencias.
 
 El sistema, al ser CRUD, permite crear, editar, visualizar y eliminar registros en la mayoría de sus módulos. Sin embargo, en secciones como ventas, detalles de ventas y movimientos de inventario, algunas opciones de eliminación serán restringidas. Estas mejoras, junto con la incorporación de nuevas funcionalidades, se implementarán gradualmente.
+
+<img width="2557" height="1294" alt="image" src="https://github.com/user-attachments/assets/8d7769ba-6dee-450d-976a-01adca555f13" />
